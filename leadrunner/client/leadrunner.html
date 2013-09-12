@@ -1,0 +1,261 @@
+
+<head>
+  <title>leadrunner</title>
+  <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
+  <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+  <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <link rel="stylesheet" href="/resources/demos/style.css" />
+  <script>
+    $(function() {
+      var $unassigned_leads = $("#unassigned_leads");
+      var $sales = $(".lead-assignment");
+
+      //let the leads be draggable
+      $("tr", $unassigned_leads).draggable({
+        cancel: "i" , //clicking the user icon won't initiate dragging
+        revert: "invalid", //when not dropped the item will revert back to first pos.
+        containment: "document",
+        helper: "clone",
+        cursor: "move"
+      });
+
+      //let the sales position be droppable
+      $sales.droppable({
+      //$("#sales_person").droppable({
+        accept: function(d){
+          if((d.attr("name")=="lead-row")){ 
+            return true;
+         } 
+        },
+        activeClass: "ui-state-highlight",
+        tolerance:"touch",
+        //over: function(event,ui){alert("OVER");},
+        drop: function(event, ui){
+          var lead_id = ui.draggable.attr('lead_id');
+          var sales_person_id = $(this).attr('sales_person_id');
+
+          console.log("Sales Person ID:" + sales_person_id);
+          console.log("Lead ID: " + lead_id);
+          assignLead(ui.draggable, sales_person_id, lead_id);
+        }
+      });
+
+      //let unassigned leads be droppable
+      $unassigned_leads.droppable({
+        accept:"#sales_person tr",
+        activeClass:"custom-state-active",
+        tolerance:"touch",
+        drop: function(event, ui) {
+          unassignLead(ui.draggable);
+        }
+      });
+
+      function assignLead($item, sales_person_id, lead_id) {
+        $item.fadeOut(function() {
+          var $sales_person = $("#sales_person_" + sales_person_id);
+          var first_name = $item.attr("first_name");
+          var last_name = $item.attr("last_name");
+          var company = $item.attr("company");
+          var email = $item.attr("email");
+          var phone = $item.attr("phone");
+          console.log($item);
+          var element_id = sales_person_id + lead_id;
+          $sales_person.append('<span name="lead-row" class="ui-droppable" ' 
+            + 'id="' + element_id + '" source="' + $item + '">'
+            + '<p class="text-info"><b>[' + company 
+            + ']</b>&nbsp;&nbsp;' + last_name + ', ' + first_name + '</p></span>')
+            .fadeIn(function(){;
+          });
+        });
+      }
+
+      function unassignLead($item){
+        $item.fadeOut(function() {
+          $item.appendTo($unassigned_leads).fadeIn();
+        });
+      }
+              
+    });
+
+    Handlebars.registerHelper('ifCond', 
+      function (operator, options) {
+        v1 = options.hash.v1;
+        v2 = options.hash.v2;
+        console.log("Operator: " + operator);
+        console.log("V1:" + v1);
+        console.log("V2:" + v2);
+        console.log(options);
+        switch (operator) {
+            case 'eq':
+                return (v1 == v2) ? true : false;
+            case 'eqq':
+                return (v1 === v2) ? true : false;
+            case 'lt':
+                return (v1 < v2) ? true : false;
+            case 'lte':
+                return (v1 <= v2) ? true : false; 
+            case 'gt':
+                return (v1 > v2) ? true : false;
+            case 'gte':
+                return (v1 >= v2) ? true : false;
+            }
+    });
+  </script>
+</head>
+<body>
+  <script type="text/javascript">
+      $('div.dropdown-menu, .dropdown-menu label').click(function(e) {
+          e.stopPropagation();
+      });
+  </script>
+  {{> nav}}
+   <div id="main-pane" class="container">
+      <div class="span5">
+        <div style="float: right">
+          {{loginButtons align="right"}}
+        </div>
+      </div>
+      {{> leads }}
+    <div class="span4" >
+      {{> salesPeople}}
+    </div>
+   </div>
+</body>
+
+<template name="leads">
+  <div class="leads span7 well" id="lead_table">
+    <table id="unassigned_leads" class="table table-striped" cellpadding="5">
+      <tr><th></th><th>Name</th><th>Email</th><th>Address</th><th>Targeted Products</th></tr>
+    {{#each leads}}
+      {{> lead}}
+    {{/each}}
+  </table>
+  </div>
+</template>
+
+<template name="product_filter">
+  <div id="product-filter" class="product-filter">
+    <div class="label">Show:</div>
+    {{# each products}}
+    <div class="product {{selected}}">
+      {{product_text}} <span class="count">({{count}})</span>
+    {{/each}}
+    </div>
+</template>
+
+<template name="selected-leads">
+  {{#if any_lead_selected}}
+  <div id="lead-view">
+    {{#if loading}}
+      Loading...
+    {{else}}
+    <ul id="lead-list">
+      {{#each leads}}
+        {{> lead }}
+      {{/each}}
+    </ul>
+  {{/if}}
+  </div>
+  {{/if}}
+</template>
+
+<template name="lead">
+<tr style="cursor:move;" name="lead-row"
+  first_name="{{first_name}}" last_name="{{last_name}}"
+  email="{{email}}" company="{{company}}"
+  phone="{{phone}}" address="{{address}}" city="{{city}}" state="{{state}}"
+  lead_id="{{_id}}">
+  <td><i class="lead-row icon-user"></i></td><td>{{last_name}}, {{first_name}}</td>
+      <td>{{email}}</td>
+      <td>
+        {{address}}, {{city}}, {{state}}
+      </td>
+      <td>
+        {{#each products}}
+          <span class="label">
+            {{this}}
+          </span>
+        {{/each}}
+      </td>
+    </tr>
+</template>
+
+<template name="salesPeople">
+  <div class="span4 well">
+   <div class="span3"><h3>Sales Team</h3></div>
+    {{#each salesPeople}}
+      {{> salesPerson}}
+    {{/each}}
+  </div>
+</template>
+
+<template name="salesPerson">
+{{# if profile}}
+<div class="span4 label label-inverse" style="margin:3px;padding:2px;">
+  <i class="icon-user icon-white"></i>&nbsp;&nbsp;{{profile.last_name}}, {{profile.first_name}}
+  <div class="span3 well lead-assignment" name="lead-assignment" 
+    sales_person_id="{{_id}}" id="sales_person_{{_id}}">
+  </div>
+</div>
+{{/if}}
+</template>
+
+<template name="nav">
+  <div class="navbar navbar-default navbar-static-top" role="banner">
+    <div class="navbar">
+      <div class="navbar-inner">
+        <a href="#" class="brand">Lead Runner</a>
+        <ul class="nav">
+          <li class="active"><a  href"#">Lead Administration</a></li>
+        </ul>
+        <ul class="nav secondary-nav pull-right">
+          <li>
+            {{> register}}
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</template>
+
+
+<template name="register">
+  {{#if 1}}
+  <div class="btn-group pull-right">
+      <a href="#" class="btn dropdown-toggle btn-primary" data-toggle="dropdown">
+        <i class="icon-lock icon-white"></i>&nbsp;&nbsp;Administration
+        <span class="caret"></span></a>
+      <div class="dropdown-menu">
+        <form id="register-form" action="action">
+          <div class="span4 well-small">
+            <div><h4>Create Account</h4></div>
+            <div><input type="text" id="first_name" placeholder="First Name"/></div>
+            <div><input type="text" id="last_name" placeholder="Last Name" /></div>
+            <div><input type="text" id="email" placeholder="Email"/></div>
+            <div><input type="text" id="title" placeholder="Professional Title"/></div>
+            <div><input type="text" id="phone" placeholder="Phone"/></div>
+            <!--foreach registration-roles based on role of current user-->
+            <div><label for="role">Business Role</label>
+              <select id="role" >
+                <option value="admin">Administrator</option>
+                <option value="manager">Business Development Manager</option>
+                <option value="marketer">Marketer</option>
+                <option value="sales">Sales Person</option>
+              </select>
+            </div>
+            <div><input type="submit" id="register" value="Create Account" class="btn btn-primary btn-large"/></div>
+          </div>
+        </form>
+  </div>
+</div>
+  {{/if}}
+</template>
+
+<template name="scripts">
+  <script type="text/javascript">
+      $('.dropdown-menu input, .dropdown-menu label').click(function(e) {
+          e.stopPropagation();
+      });
+  </script>
+</template>
+
