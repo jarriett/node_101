@@ -1,6 +1,23 @@
 Leads = new Meteor.Collection("leads");
 
+
 if (Meteor.isClient) {
+  //add the routes
+  Meteor.Router.add({
+    "/" : "dashboard",
+    "/leads":"leads",
+    "/leads/:id": function(id)
+        {
+          Session.set("lead_id", id);
+          return "lead_view";
+        },
+    "/leads/edit/:id": function(id)
+        {
+          Session.set("lead_id", id);
+          return "lead_edit";
+        }
+  });
+
   //User / Roles
   if(Meteor.userId() && !Session.get("user_role"))
     {
@@ -27,7 +44,14 @@ if (Meteor.isClient) {
       evt.preventDefault();
     }
   });
-
+  Template.lead_view.lead = function() {
+    var lead_id = Session.get("lead_id");
+    return  Leads.findOne({_id:lead_id});
+  };
+  Template.lead_edit.lead = function() {
+    var lead_id = Session.get("lead_id");
+    return  Leads.findOne({_id:lead_id});
+  };
   Template.register.events({
     'submit #register-form': function(e,t)
     {

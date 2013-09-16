@@ -4,6 +4,8 @@
   <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.css" />
   <script src="http://code.jquery.com/jquery-1.9.1.js"></script>
   <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.js"></script>
+  <script src="helpers.js"/>
+  <script src="roles.js"/>
   <link rel="stylesheet" href="/resources/demos/style.css" />
   <script>
     $(function() {
@@ -76,30 +78,12 @@
       }
               
     });
-
-    Handlebars.registerHelper('ifCond', 
-      function (operator, options) {
-        v1 = options.hash.v1;
-        v2 = options.hash.v2;
-        console.log("Operator: " + operator);
-        console.log("V1:" + v1);
-        console.log("V2:" + v2);
-        console.log(options);
-        switch (operator) {
-            case 'eq':
-                return (v1 == v2) ? true : false;
-            case 'eqq':
-                return (v1 === v2) ? true : false;
-            case 'lt':
-                return (v1 < v2) ? true : false;
-            case 'lte':
-                return (v1 <= v2) ? true : false; 
-            case 'gt':
-                return (v1 > v2) ? true : false;
-            case 'gte':
-                return (v1 >= v2) ? true : false;
-            }
-    });
+    $(function() {
+        $("a, area").click(function() {
+          history.pushState({}, '', $(this).attr("href"));
+          return false;
+        });
+      });
   </script>
 </head>
 <body>
@@ -110,27 +94,26 @@
   </script>
   {{> nav}}
    <div id="main-pane" class="container">
-      <div class="span5">
-        <div style="float: right">
-          {{loginButtons align="right"}}
-        </div>
-      </div>
-      {{> leads }}
-    <div class="span4" >
-      {{> salesPeople}}
-    </div>
+      {{renderPage}}
    </div>
 </body>
 
 <template name="leads">
+  <div class="well span7">
+    <span class="span2"><a href="leads/add" class="btn btn-primary">Add new lead</a></span>
+    <span class="span2"><a href="#" class="btn btn-success">Bulk upload leads</a><span>
+  </div>
   <div class="leads span7 well" id="lead_table">
     <table id="unassigned_leads" class="table table-striped" cellpadding="5">
-      <tr><th></th><th>Name</th><th>Email</th><th>Address</th><th>Targeted Products</th></tr>
-    {{#each leads}}
+      <tr><th></th><th>Name</th><th>Email</th><th>Address</th><th>Targeted Campaigns</th><th></th><th></th></tr> {{#each leads}}
       {{> lead}}
     {{/each}}
   </table>
   </div>
+</template>
+
+<template name="dashboard">
+   <h3>Dashboard</h3>
 </template>
 
 <template name="product_filter">
@@ -142,6 +125,470 @@
     {{/each}}
     </div>
 </template>
+
+<template name="lead_view">
+  <div class="span4 well">
+    <div class="row">
+      {{#if lead.photo_url}}
+      <div class="span2"><span><img class="img-rounded" width="140px" src="{{lead.photo_url}}"></span></div>
+      {{/if}}
+      <div class="span2">
+        <span>
+          <strong style="font-size:18px">
+            {{lead.first_name}}&nbsp;&nbsp;{{lead.last_name}}
+          </strong>
+            <br/>
+            <p>
+            {{#if lead.title}}
+            <small><strong>{{lead.title}}</strong>
+              {{#if lead.company}}
+                , {{lead.company}}
+              {{/if}}
+            {{else}}
+              {{#if lead.company}}
+                {{lead.company}}
+              {{/if}}
+            {{/if}}
+            {{#if lead.email}}
+              <br/>
+              <address>
+                <a href="mailto:{{lead.email}}">{{lead.email}}</a>
+              </address>
+            {{/if}}
+            </p>
+          </span>
+        </div>
+        <div class="span4">
+          {{#if lead.media}}
+            {{#each lead.media}}
+
+              {{#ifCond type desired="image" type=type}}
+                <img class="img-rounded" src="{{url}}"/><br/>
+              {{/ifCond}}
+            {{/each}}
+          {{/if}}
+        </div>
+      </div>
+      <div class="row">
+        <span class="span2">
+          {{#if lead.status}}
+            {{stringToUpper lead.status}}
+            <br/>
+          {{/if}}
+          {{#if lead.close_expectation_rate}}
+            {{convertDecimalToPercent lead.close_expectation_rate}}
+          {{/if}}
+        </span>
+        <span class="span2">
+          <address>
+            {{#if lead.address}}
+              {{lead.address}}
+              <br/>
+            {{/if}}
+            {{#if lead.city}}
+              {{lead.city}}
+            {{/if}}
+            {{#if lead.state}}
+            ,&nbsp;{{lead.state}}
+              
+            {{/if}}
+            {{#if lead.zip_code}}
+              ,&nbsp;{{lead.zip_code}}
+            {{/if}}
+            {{#if lead.country}}
+            &nbsp;{{lead.country}}
+            {{/if}}
+            {{#if lead.phone}}
+              <br/>
+              <abbr title="Primary Phone Number">P:</abbr>&nbsp;
+              <a href="tel:{{lead.phone}}">{{lead.phone}}</a>
+            {{/if}}
+            {{#if lead.phone_2}}
+              <br/>
+              <abbr title="Secondary Phone Number">P2:</abbr>&nbsp;
+              <a href="tel:{{lead.phone_2}}">{{lead.phone_2}}</a>
+            {{/if}}
+          </address>
+        </span>
+      </div>
+  </div>
+  <div class="span3 well">
+    {{#if lead.campaigns}}
+      <span class="lead"><p>Associated Campaigns</p></span>
+      <br/>
+      {{#each lead.campaigns}}
+        <span class="label">{{name}}</span><br/>
+      {{/each}}
+    {{/if}}
+  </div>
+
+</template>
+<template name="lead_edit">
+  <span class="span4">
+    <form class="form-horizontal">
+      <fieldset>
+
+      <!-- Form Name -->
+      <legend>Edit Lead 
+        {{#if lead.last_name}}
+          {{#if lead.first_name}}
+            [{{lead.last_name}},&nbsp;{{lead.first_name}}]
+          {{/if}}
+        {{/if}}
+        </legend>
+      
+      <div class="well">
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="first_name">First Name*</label>
+          <div class="controls">
+            <input id="first_name" name="first_name" type="text" placeholder="First Name" class="input-large" required="" value="{{lead.first_name}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="last_name">Last Name*</label>
+          <div class="controls">
+            <input id="last_name" name="last_name" type="text" placeholder="Last Name" class="input-large" required="" value="{{lead.last_name}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="email">Email*</label>
+          <div class="controls">
+            <input id="email" name="email" type="text" placeholder="Email" class="input-large" required="" value="{{lead.email}}">
+            
+          </div>
+        </div>
+        <!-- Select input -->
+        <div class="control-group">
+          <label class="control-label" for="status">Status*</label>
+          <div class="controls">
+            <select id="status" name="status" class="input-large" required="">
+              <option>Hot</option>
+              <option>Warm</option>
+              <option >Cold</option>
+              <option selected>Pending</option>
+              <option>Dead</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Text input -->
+        <div class="control-group">
+          <label class="control-label" for="close_expectation_rate">
+            Estimated Close Confidence Rating*</label>
+          <div class="controls">
+            <input id="close_expectation_rate" 
+              name="close_expectation_rate" 
+              placeholder="Close Expectation Rating"
+              value="{{convertDecimalToPercent lead.close_expectation_rate}}"/>
+            </div>
+          </div>
+
+          <br/>
+          <div class="control-group">
+            <label class="control-label" for="created">Created</label>
+            <div class="controls">
+              <span class="span2" id="created">{{timestampToDate lead.created}}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="well">
+          <!-- Text input-->
+          <div class="control-group">
+            <label class="control-label" for="title">Title</label>
+            <div class="controls">
+              <input id="title" name="title" type="text" placeholder="Title" class="input-large" required="" value="{{lead.title}}">
+              
+            </div>
+          </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="company">Company</label>
+          <div class="controls">
+            <input id="company" name="company" type="text" placeholder="Company" class="input-large" required="" value="{{lead.company}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="address">Address</label>
+          <div class="controls">
+            <input id="address" name="address" type="text" placeholder="Address" class="input-large" value="{{lead.address}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="address_2">Address 2</label>
+          <div class="controls">
+            <input id="address_2" name="address_2" type="text" placeholder="Address 2" class="input-large" value="{{lead.address_2}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="city">City</label>
+          <div class="controls">
+            <input id="city" name="city" type="text" placeholder="City" class="input-large" value="{{lead.city}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="state">State</label>
+          <div class="controls">
+            <input id="state" name="state" type="text" placeholder="State" class="input-large" value="{{lead.state}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="zip_code">Zip Code</label>
+          <div class="controls">
+            <input id="zip_code" name="zip_code" type="text" placeholder="Zip Code" class="input-large" value="{{lead.zip_code}}">
+            
+          </div>
+        </div>
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="country">Country</label>
+          <div class="controls">
+            <input id="country" name="country" type="text" placeholder="Country" class="input-large" value="{{lead.country}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="phone">Phone</label>
+          <div class="controls">
+            <input id="phone" name="phone" type="text" placeholder="Phone" class="input-large" required="" value="{{lead.phone}}">
+            
+          </div>
+        </div>
+
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="phone_2">Phone 2</label>
+          <div class="controls">
+            <input id="phone_2" name="phone_2" type="text" placeholder="Phone 2" class="input-large" value="{{lead.phone_2}}">
+            
+          </div>
+        </div>
+
+        <!-- Select Basic -->
+        <div class="control-group">
+          <label class="control-label" for="media_type">Media Type</label>
+          <div class="controls">
+            <select id="media_type" name="media_type" class="input-large">
+              <option>Image</option>
+              <option>Business Card</option>
+              <option>Video</option>
+              <option>Document</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- File Button --> 
+        <div class="control-group">
+          <label class="control-label" for="media_button">Upload Media</label>
+          <div class="controls">
+            <input id="media_button" name="media_button" class="input-file" type="file">
+          </div>
+        </div>
+
+        <!-- Text Area -->
+        <div class="control-group">
+          <label class="control-label" for="notes">Notes</label>
+          <div class="controls">
+            <textarea id="notes" name="notes" rows="3"></textarea>
+          </div>
+        </div>
+        <!-- Button -->
+        <div class="control-group">
+          <label class="control-label" for="submit"></label>
+          <div class="controls">
+            <button id="submit" name="submit" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+      </fieldset>
+    </form>
+  </span>
+</template>
+
+<template name="lead_add">
+  <form class="form-horizontal">
+    <fieldset>
+
+    <!-- Form Name -->
+    <legend>Create Lead</legend>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="first_name">First Name</label>
+      <div class="controls">
+        <input id="first_name" name="first_name" type="text" placeholder="First Name" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="last_name">Last Name</label>
+      <div class="controls">
+        <input id="last_name" name="last_name" type="text" placeholder="Last Name" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="email">Email</label>
+      <div class="controls">
+        <input id="email" name="email" type="text" placeholder="Email" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="title">Title</label>
+      <div class="controls">
+        <input id="title" name="title" type="text" placeholder="Title" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="company">Company</label>
+      <div class="controls">
+        <input id="company" name="company" type="text" placeholder="Company" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="address_1">Address</label>
+      <div class="controls">
+        <input id="address_1" name="address_1" type="text" placeholder="Address" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="address_2">Address 2</label>
+      <div class="controls">
+        <input id="address_2" name="address_2" type="text" placeholder="Address 2" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="city">City</label>
+      <div class="controls">
+        <input id="city" name="city" type="text" placeholder="City" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="stet">State</label>
+      <div class="controls">
+        <input id="stet" name="stet" type="text" placeholder="State" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="country">Country</label>
+      <div class="controls">
+        <input id="country" name="country" type="text" placeholder="Country" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="phone">Phone</label>
+      <div class="controls">
+        <input id="phone" name="phone" type="text" placeholder="Phone" class="input-large" required="">
+        
+      </div>
+    </div>
+
+    <!-- Text input-->
+    <div class="control-group">
+      <label class="control-label" for="phone_2">Phone 2</label>
+      <div class="controls">
+        <input id="phone_2" name="phone_2" type="text" placeholder="Phone 2" class="input-large">
+        
+      </div>
+    </div>
+
+    <!-- Select Basic -->
+    <div class="control-group">
+      <label class="control-label" for="media_type">Media Type</label>
+      <div class="controls">
+        <select id="media_type" name="media_type" class="input-large">
+          <option>Image</option>
+          <option>Business Card</option>
+          <option>Video</option>
+          <option>Document</option>
+          <option>Other</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- File Button --> 
+    <div class="control-group">
+      <label class="control-label" for="media_button">Upload Media</label>
+      <div class="controls">
+        <input id="media_button" name="media_button" class="input-file" type="file">
+      </div>
+    </div>
+
+    <!-- Text Area -->
+    <div class="control-group">
+      <label class="control-label" for="notes">Notes</label>
+      <div class="controls">
+        <textarea id="notes" name="notes" rows="3"></textarea>
+      </div>
+    </div>
+
+    <!-- Button -->
+    <div class="control-group">
+      <label class="control-label" for="submit"></label>
+      <div class="controls">
+        <button id="submit" name="submit" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+
+    </fieldset>
+  </form>
+
+</template>
+
 
 <template name="selected-leads">
   {{#if any_lead_selected}}
@@ -171,12 +618,18 @@
         {{address}}, {{city}}, {{state}}
       </td>
       <td>
-        {{#each products}}
+        {{#each campaigns}}
           <span class="label">
-            {{this}}
+            {{name}}
           </span>
         {{/each}}
+    </td>
+      <td><a href="leads/{{_id}}">
+          <i class="icon-info-sign"></i></a>
+        
+      
       </td>
+      <td><a href="leads/edit/{{_id}}"><i class="icon-pencil"></i></a></td>
     </tr>
 </template>
 
@@ -210,7 +663,12 @@
         </ul>
         <ul class="nav secondary-nav pull-right">
           <li>
-            {{> register}}
+              {{#if is_admin}}
+                {{> register}}
+              {{/if}}
+          </li>
+          <li>
+            {{loginButtons align="right"}}
           </li>
         </ul>
       </div>
@@ -220,7 +678,6 @@
 
 
 <template name="register">
-  {{#if 1}}
   <div class="btn-group pull-right">
       <a href="#" class="btn dropdown-toggle btn-primary" data-toggle="dropdown">
         <i class="icon-lock icon-white"></i>&nbsp;&nbsp;Administration
@@ -248,7 +705,6 @@
         </form>
   </div>
 </div>
-  {{/if}}
 </template>
 
 <template name="scripts">
