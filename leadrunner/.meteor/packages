@@ -12,3 +12,8 @@ accounts-ui
 accounts-base
 jquery
 accounts-password
+router
+roles
+s3
+handlebar-helpers
+user-session

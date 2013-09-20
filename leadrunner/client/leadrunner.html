@@ -225,7 +225,7 @@
 </template>
 <template name="lead_edit">
   <span class="span4">
-    <form class="form-horizontal">
+    <form class="form-horizontal" id="lead_edit-form">
       <fieldset>
 
       <!-- Form Name -->
@@ -432,155 +432,197 @@
 </template>
 
 <template name="lead_add">
-  <form class="form-horizontal">
+  <span class="span4">
+  <form class="form-horizontal" id="lead_add-form">
     <fieldset>
 
     <!-- Form Name -->
     <legend>Create Lead</legend>
 
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="first_name">First Name</label>
-      <div class="controls">
-        <input id="first_name" name="first_name" type="text" placeholder="First Name" class="input-large" required="">
-        
+    <div class="well">
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="first_name">First Name*</label>
+        <div class="controls">
+          <input id="first_name" name="first_name" type="text" placeholder="First Name" class="input-large" required="Please enter a first name">
+          
+        </div>
       </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="last_name">Last Name*</label>
+        <div class="controls">
+          <input id="last_name" name="last_name" type="text" placeholder="Last Name" class="input-large" required="Please enter a last name">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="email">Email*</label>
+        <div class="controls">
+          <input id="email" name="email" type="text" placeholder="Email" class="input-large" required="Please enter a valid email address">
+          
+        </div>
+      </div>
+
+       <!-- Select input -->
+        <div class="control-group">
+          <label class="control-label" for="status">Status*</label>
+          <div class="controls">
+            <select id="status" name="status" class="input-large" required="Please select a valid status">
+              <option>Hot</option>
+              <option>Warm</option>
+              <option >Cold</option>
+              <option selected>Pending</option>
+              <option>Dead</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Text input -->
+        <div class="control-group">
+          <label class="control-label" for="close_expectation_rate">
+            Estimated Close Confidence Rating*</label>
+          <div class="controls">
+            <input id="close_expectation_rate" 
+              name="close_expectation_rate" 
+              placeholder="Close Expectation Rating"
+              value="{{convertDecimalToPercent lead.close_expectation_rate}}"/>
+            </div>
+          </div>
+
     </div>
 
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="last_name">Last Name</label>
-      <div class="controls">
-        <input id="last_name" name="last_name" type="text" placeholder="Last Name" class="input-large" required="">
-        
+    <div class="well">
+        <!-- Text input-->
+        <div class="control-group">
+          <label class="control-label" for="title">Title</label>
+          <div class="controls">
+            <input id="title" name="title" type="text" placeholder="Title" class="input-large">
+            
+          </div>
+        </div>
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="company">Company</label>
+        <div class="controls">
+          <input id="company" name="company" type="text" placeholder="Company" class="input-large" required="Please enter a company">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="address">Address</label>
+        <div class="controls">
+          <input id="address" name="address" type="text" placeholder="Address" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="address_2">Address 2</label>
+        <div class="controls">
+          <input id="address_2" name="address_2" type="text" placeholder="Address 2" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="city">City</label>
+        <div class="controls">
+          <input id="city" name="city" type="text" placeholder="City" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="state">State</label>
+        <div class="controls">
+          <input id="state" name="state" type="text" placeholder="State" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="zip_code">Zip Code</label>
+        <div class="controls">
+          <input id="zip_code" name="zip_code" type="text" placeholder="Zip Code" class="input-large">
+          
+        </div>
+      </div>
+
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="country">Country</label>
+        <div class="controls">
+          <input id="country" name="country" type="text" placeholder="Country" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="phone">Phone</label>
+        <div class="controls">
+          <input id="phone" name="phone" type="text" placeholder="Phone" class="input-large" required="Please enter a valid phone number">
+          
+        </div>
+      </div>
+
+      <!-- Text input-->
+      <div class="control-group">
+        <label class="control-label" for="phone_2">Phone 2</label>
+        <div class="controls">
+          <input id="phone_2" name="phone_2" type="text" placeholder="Phone 2" class="input-large">
+          
+        </div>
+      </div>
+
+      <!-- Select Basic -->
+      <div class="control-group">
+        <label class="control-label" for="media_type">Media Type</label>
+        <div class="controls">
+          <select id="media_type" name="media_type" class="input-large">
+            <option>Image</option>
+            <option>Business Card</option>
+            <option>Video</option>
+            <option>Document</option>
+            <option>Other</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- File Button --> 
+      <div class="control-group">
+        <label class="control-label" for="media_button">Upload Media</label>
+        <div class="controls">
+          {{#S3 callback="saveLeadMedia"}}
+          <input id="media_button" name="media_button" class="input-file" type="file">
+          {{/S3}}
+        </div>
+      </div>
+
+      <!-- Text Area -->
+      <div class="control-group">
+        <label class="control-label" for="notes">Notes</label>
+        <div class="controls">
+          <textarea id="notes" name="notes" rows="3"></textarea>
+        </div>
       </div>
     </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="email">Email</label>
-      <div class="controls">
-        <input id="email" name="email" type="text" placeholder="Email" class="input-large" required="">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="title">Title</label>
-      <div class="controls">
-        <input id="title" name="title" type="text" placeholder="Title" class="input-large" required="">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="company">Company</label>
-      <div class="controls">
-        <input id="company" name="company" type="text" placeholder="Company" class="input-large" required="">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="address_1">Address</label>
-      <div class="controls">
-        <input id="address_1" name="address_1" type="text" placeholder="Address" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="address_2">Address 2</label>
-      <div class="controls">
-        <input id="address_2" name="address_2" type="text" placeholder="Address 2" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="city">City</label>
-      <div class="controls">
-        <input id="city" name="city" type="text" placeholder="City" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="stet">State</label>
-      <div class="controls">
-        <input id="stet" name="stet" type="text" placeholder="State" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="country">Country</label>
-      <div class="controls">
-        <input id="country" name="country" type="text" placeholder="Country" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="phone">Phone</label>
-      <div class="controls">
-        <input id="phone" name="phone" type="text" placeholder="Phone" class="input-large" required="">
-        
-      </div>
-    </div>
-
-    <!-- Text input-->
-    <div class="control-group">
-      <label class="control-label" for="phone_2">Phone 2</label>
-      <div class="controls">
-        <input id="phone_2" name="phone_2" type="text" placeholder="Phone 2" class="input-large">
-        
-      </div>
-    </div>
-
-    <!-- Select Basic -->
-    <div class="control-group">
-      <label class="control-label" for="media_type">Media Type</label>
-      <div class="controls">
-        <select id="media_type" name="media_type" class="input-large">
-          <option>Image</option>
-          <option>Business Card</option>
-          <option>Video</option>
-          <option>Document</option>
-          <option>Other</option>
-        </select>
-      </div>
-    </div>
-
-    <!-- File Button --> 
-    <div class="control-group">
-      <label class="control-label" for="media_button">Upload Media</label>
-      <div class="controls">
-        <input id="media_button" name="media_button" class="input-file" type="file">
-      </div>
-    </div>
-
-    <!-- Text Area -->
-    <div class="control-group">
-      <label class="control-label" for="notes">Notes</label>
-      <div class="controls">
-        <textarea id="notes" name="notes" rows="3"></textarea>
-      </div>
-    </div>
-
     <!-- Button -->
     <div class="control-group">
       <label class="control-label" for="submit"></label>
       <div class="controls">
-        <button id="submit" name="submit" class="btn btn-primary">Save</button>
+        <input id="submit" type="submit" name="submit" value="Save" class="btn btn-primary">
       </div>
     </div>
 
@@ -663,7 +705,7 @@
         </ul>
         <ul class="nav secondary-nav pull-right">
           <li>
-              {{#if is_admin}}
+              {{#if $eq first_name "Local"}}
                 {{> register}}
               {{/if}}
           </li>

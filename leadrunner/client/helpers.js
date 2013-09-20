@@ -169,4 +169,19 @@
            return time;
        });
 
+//    Handlebars.registerHelper('generateDataUid',
+//          function()
+//          {
+//           // if(UserSession.get('lead_form') == null)
+//           // {
+//              var uid = Meteor.uuid();
+//              var data = {};
+//              UserSession.set('lead_form', uid);
+//              UserSession.set(uid, data);
+//            //  console.log("USER Form ID: " + uid);
+//              return "";
+//          //  }
+//          }
+//     );
+
 }));
